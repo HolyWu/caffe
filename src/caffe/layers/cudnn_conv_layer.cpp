@@ -164,7 +164,7 @@ void CuDNNConvolutionLayer<Dtype>::Reshape(
 			  filter_desc_, pad_h, pad_w,
 			  stride_h, stride_w);
 
-		  const int algo = Caffe::GetcuDNNAlgorithm(type(), this->channels_, this->num_output_, this->num_,
+		  const int algo = Caffe::GetcuDNNAlgorithm(this->type(), this->channels_, this->num_output_, this->num_,
 			  width, height, kernel_w_, kernel_h_, pad_w, pad_h, stride_w, stride_h);
 		  if (algo >= 0)
 			  fwd_algo_[i] = (cudnnConvolutionFwdAlgo_t)algo;
@@ -172,7 +172,7 @@ void CuDNNConvolutionLayer<Dtype>::Reshape(
 		  {
 			  if (this->workspaceData)
 			  {
-				  // �v���p���[�N�X�y�[�X�m�ۂ̂��߂Ɍ��݂̃��[�N�X�y�[�X�J��
+				  // 計測用ワークスペース確保のために現在のワークスペース開放
 				  cudaFree(this->workspaceData);
 
 				  workspaceData = NULL;
@@ -182,13 +182,13 @@ void CuDNNConvolutionLayer<Dtype>::Reshape(
 					  workspace[g] = NULL;
 			  }
 
-			  // cuDNN�̃A���S���Y���̃L���b�V���擾�̓��[�v���ŕω����Ȃ��p�����[�^�݂̂����Ɏ擾����̂ŁA����̗v�f�����v������Ώ\��
+			  // cuDNNのアルゴリズムのキャッシュ取得はループ中で変化しないパラメータのみを元に取得するので、今回の要素だけ計測すれば十分
 			  cudnnConvolutionFwdAlgo_t algo;
 			  CUDNN_CHECK(cudnn::FindConvolutionForwardAlgorithmEx(&handle_[i], &bottom_descs_[i], &bottom[i],
 				  filter_desc_, this->blobs_[0].get(), &conv_descs_[i], &top_descs_[i], &top[i], &algo, 1));
 
 			  fwd_algo_[i] = algo;
-			  Caffe::SetcuDNNAlgorithm((int)fwd_algo_[i], type(), this->channels_, this->num_output_, this->num_,
+			  Caffe::SetcuDNNAlgorithm((int)fwd_algo_[i], this->type(), this->channels_, this->num_output_, this->num_,
 				  width, height, kernel_w_, kernel_h_, pad_w, pad_h, stride_w, stride_h);
 		  }
 

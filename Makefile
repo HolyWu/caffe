@@ -311,14 +311,14 @@ ifdef CUSTOM_CXX
 endif
 
 # Static linking
-ifneq (,$(findstring clang++,$(CXX)))
-	STATIC_LINK_COMMAND := -Wl,-force_load $(STATIC_NAME)
-else ifneq (,$(findstring g++,$(CXX)))
-	STATIC_LINK_COMMAND := -Wl,--whole-archive $(STATIC_NAME) -Wl,--no-whole-archive
-else
-  # The following line must not be indented with a tab, since we are not inside a target
-  $(error Cannot static link with the $(CXX) compiler)
-endif
+# ifneq (,$(findstring clang++,$(CXX)))
+	# STATIC_LINK_COMMAND := -Wl,-force_load $(STATIC_NAME)
+# else ifneq (,$(findstring g++,$(CXX)))
+	# STATIC_LINK_COMMAND := -Wl,--whole-archive $(STATIC_NAME) -Wl,--no-whole-archive
+# else
+  # # The following line must not be indented with a tab, since we are not inside a target
+  # $(error Cannot static link with the $(CXX) compiler)
+# endif
 
 # Debugging
 ifeq ($(DEBUG), 1)
@@ -385,7 +385,7 @@ ifeq ($(BLAS), mkl)
 	BLAS_LIB ?= $(MKLROOT)/lib $(MKLROOT)/lib/intel64
 else ifeq ($(BLAS), open)
 	# OpenBLAS
-	LIBRARIES += openblas
+	LIBRARIES += $(shell pkg-config openblas --libs-only-l | sed 's/-l//g')
 else
 	# ATLAS
 	ifeq ($(LINUX), 1)
@@ -421,7 +421,7 @@ CXXFLAGS += -MMD -MP
 
 # Complete build flags.
 COMMON_FLAGS += $(foreach includedir,$(INCLUDE_DIRS),-I$(includedir))
-CXXFLAGS += -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS)
+CXXFLAGS += -std=c++11 -pthread -fPIC $(COMMON_FLAGS) $(WARNINGS)
 NVCCFLAGS += -ccbin=$(CXX) -Xcompiler -fPIC $(COMMON_FLAGS)
 # mex may invoke an older gcc that is too liberal with -Wuninitalized
 MATLAB_CXXFLAGS := $(CXXFLAGS) -Wno-uninitialized

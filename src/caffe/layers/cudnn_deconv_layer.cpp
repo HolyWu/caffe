@@ -143,6 +143,8 @@ void CuDNNDeconvolutionLayer<Dtype>::Reshape(
                                      stride_w);
 
     if (this->phase_ == TRAIN) {
+        assert(false);
+#if 0
       // choose forward and backward algorithms + workspace(s)
       CUDNN_CHECK(cudnnGetConvolutionForwardAlgorithm(
           handle_[0],
@@ -205,6 +207,7 @@ void CuDNNDeconvolutionLayer<Dtype>::Reshape(
           filter_desc_,
           bwd_filter_algo_[i],
           &workspace_bwd_filter_sizes_[i]));
+#endif
     }
     else {
       workspace_fwd_sizes_[i] = 0;
